@@ -1,12 +1,20 @@
 use std::num::ParseIntError;
 
-pub fn add(numbers: &str) -> Result<i32, AddError> {
-    if numbers.is_empty() {
+pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
+    if string_of_numbers.is_empty() {
         return Ok(0);
     }
 
-    let result = numbers.parse()?;
-    Ok(result)
+    let sum = string_of_numbers
+        .split(",")
+        .collect::<Vec<_>>()
+        .into_iter()
+        .map(|n| n.parse::<i32>())
+        .collect::<Result<Vec<i32>, _>>()?
+        .iter()
+        .sum();
+
+    Ok(sum)
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -34,6 +42,12 @@ mod tests {
     fn string_with_just_a_number_is_that_number() {
         let just_a_number = "1";
         assert_eq!(Ok(1), add(just_a_number));
+    }
+
+    #[test]
+    fn sum_two_numbers_separated_by_comma() {
+        let two_numbers = "1,2";
+        assert_eq!(Ok(3), add(two_numbers));
     }
 
     #[test]
