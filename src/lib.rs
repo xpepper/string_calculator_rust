@@ -22,7 +22,7 @@ impl From<ParseIntError> for AddError {
 
 #[cfg(test)]
 mod tests {
-    use super::{add, AddError};
+    use super::*;
 
     #[test]
     fn empty_string_is_0() {
