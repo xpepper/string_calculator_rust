@@ -1,4 +1,4 @@
-pub fn add(_numbers: String) -> i32 {
+pub fn add(_numbers: &str) -> i32 {
     0
 }
 
@@ -8,7 +8,7 @@ mod tests {
 
     #[test]
     fn empty_string_is_0() {
-        let numbers = String::from("");
-        assert_eq!(0, add(numbers));
+        let empty = "";
+        assert_eq!(0, add(empty));
     }
 }
