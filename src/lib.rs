@@ -1,4 +1,4 @@
-pub fn add(numbers: String) -> i32 {
+pub fn add(_numbers: String) -> i32 {
     0
 }
 
