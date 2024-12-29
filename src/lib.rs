@@ -77,7 +77,9 @@ mod tests {
 
     #[test]
     fn support_different_delimiters() {
-        assert_eq!(add("//;\n1;2"), Ok(3))
+        assert_eq!(add("//;\n1;2"), Ok(3));
+        assert_eq!(add("//|\n1|2"), Ok(3));
+        assert_eq!(add("//==\n1==2"), Ok(3));
     }
 
     #[test]
