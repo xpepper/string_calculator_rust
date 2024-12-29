@@ -7,7 +7,7 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
 
     string_of_numbers
         .split(",")
-        .map(|n| n.parse::<i32>().map_err(AddError::from))
+        .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
         .sum()
 }
 
@@ -39,6 +39,11 @@ mod tests {
     #[test]
     fn sum_multiple_numbers_separated_by_comma() {
         assert_eq!(add("1,2,3,4"), Ok(1 + 2 + 3 + 4));
+    }
+
+    #[test]
+    fn remove_trailing_spaces_before_adding() {
+        assert_eq!(add("1,  2"), Ok(1 + 2));
     }
 
     #[test]
