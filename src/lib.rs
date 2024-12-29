@@ -5,16 +5,10 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         return Ok(0);
     }
 
-    let sum = string_of_numbers
+    string_of_numbers
         .split(",")
-        .collect::<Vec<_>>()
-        .into_iter()
-        .map(|n| n.parse::<i32>())
-        .collect::<Result<Vec<i32>, _>>()?
-        .iter()
-        .sum();
-
-    Ok(sum)
+        .map(|n| n.parse::<i32>().map_err(AddError::from))
+        .sum()
 }
 
 #[derive(Debug, PartialEq, Eq)]
