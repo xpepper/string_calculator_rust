@@ -7,15 +7,37 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         return Ok(0);
     }
 
+    if string_of_numbers.starts_with("//") {
+        if let Some((custom_delimiter, string_of_numbers)) = find_custom_delimiter(string_of_numbers) {
+            return string_of_numbers
+                .split(custom_delimiter)
+                .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
+                .sum();
+        } else {
+            return Err(AddError::CannotFindCustomDelimiter);
+        }
+    }
+
     string_of_numbers
         .split(&SEPARATORS)
         .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
         .sum()
 }
 
+fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str,&str)> {
+    match string_of_numbers.find('\n') {
+        None => None,
+        Some(newline_index) => {
+            let custom_delimiter = &string_of_numbers[2..newline_index];
+            Some((custom_delimiter, &string_of_numbers[newline_index..]))
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum AddError {
     CannotParseNumber(String),
+    CannotFindCustomDelimiter,
 }
 
 impl From<ParseIntError> for AddError {
@@ -53,6 +75,13 @@ mod tests {
         assert_eq!(add("1,  2"), Ok(1 + 2));
     }
 
+    #[test]
+    fn support_different_delimiters() {
+        //to change a delimiter, the beginning of the string will contain
+        // a separate line that looks like this: “//[delimiter]\n[numbers…]” for example “//;\n1;2” should return three where the default delimiter is ‘;’ .
+        // the first line is optional. all existing scenarios should still be supported
+        assert_eq!(add("//;\n1;2"), Ok(3))
+    }
     #[test]
     fn cannot_add_string_containing_unparsable_numbers() {
         assert_eq!(
