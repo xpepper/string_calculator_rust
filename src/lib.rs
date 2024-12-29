@@ -1,12 +1,14 @@
 use std::num::ParseIntError;
 
 pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
+    const SEPARATORS: [char; 2] = [',', '\n'];
+
     if string_of_numbers.is_empty() {
         return Ok(0);
     }
 
     string_of_numbers
-        .split(",")
+        .split(&SEPARATORS)
         .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
         .sum()
 }
@@ -39,6 +41,11 @@ mod tests {
     #[test]
     fn sum_multiple_numbers_separated_by_comma() {
         assert_eq!(add("1,2,3,4"), Ok(1 + 2 + 3 + 4));
+    }
+
+    #[test]
+    fn new_line_is_an_alternative_separator() {
+        assert_eq!(add("1\n2,3,4"), Ok(1 + 2 + 3 + 4));
     }
 
     #[test]
