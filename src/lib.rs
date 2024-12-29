@@ -37,8 +37,8 @@ mod tests {
     }
 
     #[test]
-    fn sum_two_numbers_separated_by_comma() {
-        assert_eq!(add("1,2"), Ok(3));
+    fn sum_multiple_numbers_separated_by_comma() {
+        assert_eq!(add("1,2,3,4"), Ok(1 + 2 + 3 + 4));
     }
 
     #[test]
