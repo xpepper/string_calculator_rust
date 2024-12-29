@@ -8,7 +8,9 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
     }
 
     if string_of_numbers.starts_with("//") {
-        if let Some((custom_delimiter, string_of_numbers)) = find_custom_delimiter(string_of_numbers) {
+        if let Some((custom_delimiter, string_of_numbers)) =
+            find_custom_delimiter(string_of_numbers)
+        {
             return string_of_numbers
                 .split(custom_delimiter)
                 .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
@@ -24,9 +26,10 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         .sum()
 }
 
-fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str,&str)> {
+fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
     match string_of_numbers.find('\n') {
         None => None,
+        Some(2) => None,
         Some(newline_index) => {
             let custom_delimiter = &string_of_numbers[2..newline_index];
             Some((custom_delimiter, &string_of_numbers[newline_index..]))
@@ -80,6 +83,13 @@ mod tests {
         assert_eq!(add("//;\n1;2"), Ok(3));
         assert_eq!(add("//|\n1|2"), Ok(3));
         assert_eq!(add("//==\n1==2"), Ok(3));
+    }
+
+    #[test]
+    fn cannot_find_customer_delimiter() {
+        assert_eq!(add("//\n1;2"), Err(AddError::CannotFindCustomDelimiter));
+        assert_eq!(add("//1;2"), Err(AddError::CannotFindCustomDelimiter));
+        // assert_eq!(add("//     1;2"), Err(AddError::CannotFindCustomDelimiter));
     }
 
     #[test]
