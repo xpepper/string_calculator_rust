@@ -28,27 +28,23 @@ mod tests {
 
     #[test]
     fn empty_string_is_0() {
-        let empty = "";
-        assert_eq!(add(empty), Ok(0));
+        assert_eq!(add(""), Ok(0));
     }
 
     #[test]
     fn string_with_just_a_number_is_that_number() {
-        let just_a_number = "1";
-        assert_eq!(add(just_a_number), Ok(1));
+        assert_eq!(add("1"), Ok(1));
     }
 
     #[test]
     fn sum_two_numbers_separated_by_comma() {
-        let two_numbers = "1,2";
-        assert_eq!(add(two_numbers), Ok(3));
+        assert_eq!(add("1,2"), Ok(3));
     }
 
     #[test]
     fn cannot_add_string_containing_unparsable_numbers() {
-        let not_a_number = "ABC";
         assert_eq!(
-            add(not_a_number),
+            add("ABC,2"),
             Err(AddError::CannotParseNumber(
                 "invalid digit found in string".to_string()
             ))
