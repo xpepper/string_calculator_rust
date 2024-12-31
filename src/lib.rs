@@ -33,15 +33,18 @@ fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
 
 fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
     if has_custom_delimiter(string_of_numbers) {
-        if let Some((custom_delimiters, string_of_numbers)) =
-            find_custom_delimiters(string_of_numbers)
-        {
-            split_with_delimiters(string_of_numbers, custom_delimiters)
-        } else {
-            Err(AddError::CannotFindCustomDelimiter)
-        }
+        split_with_custom_delimiters(string_of_numbers)
     } else {
         split_with_delimiters(string_of_numbers, DEFAULT_SEPARATORS.to_vec())
+    }
+}
+
+fn split_with_custom_delimiters(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
+    if let Some((custom_delimiters, string_of_numbers)) = find_custom_delimiters(string_of_numbers)
+    {
+        split_with_delimiters(string_of_numbers, custom_delimiters)
+    } else {
+        Err(AddError::CannotFindCustomDelimiter)
     }
 }
 
