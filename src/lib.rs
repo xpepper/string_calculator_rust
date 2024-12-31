@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::num::ParseIntError;
 
-const DEFAULT_SEPARATORS: [char; 2] = [',', '\n'];
+const DEFAULT_SEPARATORS: [&str; 2] = [",", "\n"];
 pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
     if string_of_numbers.is_empty() {
         return Ok(0);
@@ -36,24 +36,31 @@ fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
         if let Some((custom_delimiters, string_of_numbers)) =
             find_custom_delimiters(string_of_numbers)
         {
-            let regexp = Regex::new(
-                custom_delimiters
-                    .into_iter()
-                    .map(regex::escape)
-                    .collect::<Vec<String>>()
-                    .join("|")
-                    .as_str(),
-            )
-            .unwrap();
-            Ok(regexp.split(string_of_numbers).collect::<Vec<&str>>())
+            split_with_delimiters(string_of_numbers, custom_delimiters)
         } else {
             Err(AddError::CannotFindCustomDelimiter)
         }
     } else {
-        Ok(string_of_numbers
-            .split(&DEFAULT_SEPARATORS)
-            .collect::<Vec<&str>>())
+        split_with_delimiters(string_of_numbers, DEFAULT_SEPARATORS.to_vec())
     }
+}
+
+fn split_with_delimiters<'a>(
+    string_of_numbers: &'a str,
+    custom_delimiters: Vec<&'a str>,
+) -> Result<Vec<&'a str>, AddError> {
+    let delimiters_regexp = Regex::new(
+        custom_delimiters
+            .into_iter()
+            .map(regex::escape)
+            .collect::<Vec<String>>()
+            .join("|")
+            .as_str(),
+    )
+    .unwrap();
+    Ok(delimiters_regexp
+        .split(string_of_numbers)
+        .collect::<Vec<&str>>())
 }
 
 fn has_custom_delimiter(string_of_numbers: &str) -> bool {
