@@ -35,13 +35,16 @@ fn has_custom_delimiter(string_of_numbers: &str) -> bool {
 }
 
 fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
-    match string_of_numbers.find('\n') {
-        None | Some(2) => None,
-        Some(newline_index) => {
-            let custom_delimiter = &string_of_numbers[2..newline_index];
-            Some((custom_delimiter, &string_of_numbers[newline_index..]))
-        }
+    if string_of_numbers.starts_with("//\n") {
+        return None; // Empty delimiter is invalid
     }
+
+    string_of_numbers.strip_prefix("//").and_then(|rest| {
+        let newline_index = rest.find('\n')?;
+        let delimiter = &rest[..newline_index];
+        let numbers = &rest[newline_index + 1..];
+        Some((delimiter, numbers))
+    })
 }
 
 #[derive(Debug, PartialEq, Eq)]
