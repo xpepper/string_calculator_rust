@@ -57,8 +57,8 @@ fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
         return None;
     }
 
-    string_of_numbers.strip_prefix("//").and_then(|rest| {
-        let newline_index = rest.find('\n')?;
+    string_of_numbers.strip_prefix("//[").and_then(|rest| {
+        let newline_index = rest.find("]\n")?;
         let delimiter = &rest[..newline_index];
         let numbers = &rest[newline_index + 1..];
         Some((delimiter, numbers))
@@ -109,10 +109,10 @@ mod tests {
 
     #[test]
     fn support_different_delimiters() {
-        assert_eq!(add("//;\n1;2"), Ok(3));
-        assert_eq!(add("//|\n1|2"), Ok(3));
-        assert_eq!(add("//==\n1==2"), Ok(3));
-        assert_eq!(add("// \n1 2"), Ok(3));
+        assert_eq!(add("//[;]\n1;2"), Ok(3));
+        assert_eq!(add("//[|]\n1|2"), Ok(3));
+        assert_eq!(add("//[==]\n1==2"), Ok(3));
+        assert_eq!(add("//[ ]\n1 2"), Ok(3));
     }
 
     #[test]
@@ -122,7 +122,7 @@ mod tests {
             Err(AddError::NegativeNumbersNotAllowed(vec![-2]))
         );
         assert_eq!(
-            add("//;\n-1;-2"),
+            add("//[;]\n-1;-2"),
             Err(AddError::NegativeNumbersNotAllowed(vec![-1, -2]))
         );
     }
@@ -130,6 +130,13 @@ mod tests {
     #[test]
     fn numbers_bigger_than_1000_are_ignored() {
         assert_eq!(add("1,1001,2"), Ok(1 + 2));
+    }
+
+    #[test]
+    fn delimiters_can_be_of_any_length() {
+        // Delimiters can be of any length with the following format:
+        // “//[delimiter]\n” for example: “//[***]\n1***2***3” should return 6
+        assert_eq!(add("//[***]\n1***2***3"), Ok(1 + 2 + 3));
     }
 
     #[test]
