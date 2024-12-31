@@ -77,7 +77,7 @@ fn extract_delimiters_from(string_of_delimiters: &str) -> Vec<&str> {
     Regex::new(r"\[(.*?)]")
         .unwrap()
         .captures_iter(string_of_delimiters)
-        .map(|cap| cap.get(1).unwrap().as_str())
+        .map(|captures| captures.get(1).unwrap().as_str())
         .collect()
 }
 
