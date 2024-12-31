@@ -74,11 +74,10 @@ fn find_custom_delimiters(string_of_numbers: &str) -> Option<(Vec<&str>, &str)> 
 }
 
 fn extract_delimiters(input: &str) -> Vec<&str> {
-    // Define a regex to match content inside square brackets
-    let re = Regex::new(r"\[(.*?)]").unwrap();
-    // Capture all matches and collect them into a vector
-    re.captures_iter(input)
-        .map(|cap| cap.get(1).unwrap().as_str()) // Capture group 1 contains the content inside brackets
+    Regex::new(r"\[(.*?)]")
+        .unwrap()
+        .captures_iter(input)
+        .map(|cap| cap.get(1).unwrap().as_str())
         .collect()
 }
 
