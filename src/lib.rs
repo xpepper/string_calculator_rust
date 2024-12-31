@@ -134,8 +134,6 @@ mod tests {
 
     #[test]
     fn delimiters_can_be_of_any_length() {
-        // Delimiters can be of any length with the following format:
-        // “//[delimiter]\n” for example: “//[***]\n1***2***3” should return 6
         assert_eq!(add("//[***]\n1***2***3"), Ok(1 + 2 + 3));
     }
 
