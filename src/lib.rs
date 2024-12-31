@@ -1,35 +1,45 @@
 use std::num::ParseIntError;
 
+const DEFAULT_SEPARATORS: [char; 2] = [',', '\n'];
 pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
-    const SEPARATORS: [char; 2] = [',', '\n'];
-
     if string_of_numbers.is_empty() {
         return Ok(0);
     }
 
-    if string_of_numbers.starts_with("//") {
+    match parse(string_of_numbers) {
+        Ok(numbers) => numbers
+            .iter()
+            .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
+            .sum(),
+        Err(e) => Err(e),
+    }
+}
+
+fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
+    if has_custom_delimiter(string_of_numbers) {
         if let Some((custom_delimiter, string_of_numbers)) =
             find_custom_delimiter(string_of_numbers)
         {
-            return string_of_numbers
+            Ok(string_of_numbers
                 .split(custom_delimiter)
-                .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
-                .sum();
+                .collect::<Vec<&str>>())
         } else {
-            return Err(AddError::CannotFindCustomDelimiter);
+            Err(AddError::CannotFindCustomDelimiter)
         }
+    } else {
+        Ok(string_of_numbers
+            .split(&DEFAULT_SEPARATORS)
+            .collect::<Vec<&str>>())
     }
+}
 
-    string_of_numbers
-        .split(&SEPARATORS)
-        .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
-        .sum()
+fn has_custom_delimiter(string_of_numbers: &str) -> bool {
+    string_of_numbers.starts_with("//")
 }
 
 fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
     match string_of_numbers.find('\n') {
-        None => None,
-        Some(2) => None,
+        None | Some(2) => None,
         Some(newline_index) => {
             let custom_delimiter = &string_of_numbers[2..newline_index];
             Some((custom_delimiter, &string_of_numbers[newline_index..]))
