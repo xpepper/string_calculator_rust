@@ -12,13 +12,13 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         return Err(AddError::NegativeNumbersNotAllowed(negatives));
     }
 
-    Ok(numbers.iter().sum())
+    Ok(numbers.into_iter().filter(|number| *number <= 1000).sum())
 }
 
 fn find_negatives_in(numbers: &[i32]) -> Vec<i32> {
     numbers
         .iter()
-        .filter(|n| n.is_negative())
+        .filter(|number| number.is_negative())
         .cloned()
         .collect::<Vec<i32>>()
 }
@@ -26,7 +26,7 @@ fn find_negatives_in(numbers: &[i32]) -> Vec<i32> {
 fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
     parse(string_of_numbers)?
         .into_iter()
-        .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
+        .map(|number| number.trim().parse::<i32>().map_err(AddError::from))
         .collect::<Result<Vec<i32>, AddError>>()
 }
 
@@ -125,6 +125,11 @@ mod tests {
             add("//;\n-1;-2"),
             Err(AddError::NegativeNumbersNotAllowed(vec![-1, -2]))
         );
+    }
+
+    #[test]
+    fn numbers_bigger_than_1000_are_ignored() {
+        assert_eq!(add("1,1001,2"), Ok(1 + 2));
     }
 
     #[test]
