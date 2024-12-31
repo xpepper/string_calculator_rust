@@ -16,12 +16,11 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
 }
 
 fn find_negatives_in(numbers: &[i32]) -> Vec<i32> {
-    let negatives = numbers
+    numbers
         .iter()
         .filter(|n| n.is_negative())
         .cloned()
-        .collect::<Vec<i32>>();
-    negatives
+        .collect::<Vec<i32>>()
 }
 
 fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
