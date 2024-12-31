@@ -36,7 +36,7 @@ fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
             find_custom_delimiter(string_of_numbers)
         {
             Ok(string_of_numbers
-                .split(custom_delimiter)
+                .split(custom_delimiter.join("|").as_str())
                 .collect::<Vec<&str>>())
         } else {
             Err(AddError::CannotFindCustomDelimiter)
@@ -52,7 +52,7 @@ fn has_custom_delimiter(string_of_numbers: &str) -> bool {
     string_of_numbers.starts_with("//")
 }
 
-fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
+fn find_custom_delimiter(string_of_numbers: &str) -> Option<(Vec<&str>, &str)> {
     if string_of_numbers.starts_with("//\n") {
         return None;
     }
@@ -61,7 +61,7 @@ fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
         let newline_index = rest.find("]\n")?;
         let delimiter = &rest[..newline_index];
         let numbers = &rest[newline_index + 1..];
-        Some((delimiter, numbers))
+        Some((vec![delimiter], numbers))
     })
 }
 
@@ -113,6 +113,7 @@ mod tests {
         assert_eq!(add("//[|]\n1|2"), Ok(3));
         assert_eq!(add("//[==]\n1==2"), Ok(3));
         assert_eq!(add("//[ ]\n1 2"), Ok(3));
+        assert_eq!(add("//[*]\n1*2"), Ok(3));
     }
 
     #[test]
@@ -135,6 +136,13 @@ mod tests {
     #[test]
     fn delimiters_can_be_of_any_length() {
         assert_eq!(add("//[***]\n1***2***3"), Ok(1 + 2 + 3));
+    }
+
+    #[ignore]
+    #[test]
+    fn allow_multiple_delimiters() {
+        //Allow multiple delimiters like this: “//[delim1][delim2]\n” for example “//[*][%]\n1*2%3”
+        assert_eq!(add("//[*][%]\n1*2%3"), Ok(1 + 2 + 3));
     }
 
     #[test]
