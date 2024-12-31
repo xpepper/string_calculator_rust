@@ -6,13 +6,10 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         return Ok(0);
     }
 
-    match parse(string_of_numbers) {
-        Ok(numbers) => numbers
-            .iter()
-            .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
-            .sum(),
-        Err(e) => Err(e),
-    }
+    parse(string_of_numbers)?
+        .into_iter()
+        .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
+        .sum()
 }
 
 fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
