@@ -69,14 +69,14 @@ fn find_custom_delimiters(string_of_numbers: &str) -> Option<(Vec<&str>, &str)> 
         let newline_index = rest.find("\n")?;
         let delimiters = &rest[..newline_index];
         let numbers = &rest[newline_index + 1..];
-        Some((extract_delimiters(delimiters), numbers))
+        Some((extract_delimiters_from(delimiters), numbers))
     })
 }
 
-fn extract_delimiters(input: &str) -> Vec<&str> {
+fn extract_delimiters_from(string_of_delimiters: &str) -> Vec<&str> {
     Regex::new(r"\[(.*?)]")
         .unwrap()
-        .captures_iter(input)
+        .captures_iter(string_of_delimiters)
         .map(|cap| cap.get(1).unwrap().as_str())
         .collect()
 }
