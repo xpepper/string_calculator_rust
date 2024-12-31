@@ -36,7 +36,7 @@ fn has_custom_delimiter(string_of_numbers: &str) -> bool {
 
 fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
     if string_of_numbers.starts_with("//\n") {
-        return None; // Empty delimiter is invalid
+        return None;
     }
 
     string_of_numbers.strip_prefix("//").and_then(|rest| {
@@ -93,13 +93,14 @@ mod tests {
         assert_eq!(add("//;\n1;2"), Ok(3));
         assert_eq!(add("//|\n1|2"), Ok(3));
         assert_eq!(add("//==\n1==2"), Ok(3));
+        assert_eq!(add("// \n1 2"), Ok(3));
     }
 
     #[test]
     fn cannot_find_customer_delimiter() {
         assert_eq!(add("//\n1;2"), Err(AddError::CannotFindCustomDelimiter));
         assert_eq!(add("//1;2"), Err(AddError::CannotFindCustomDelimiter));
-        // assert_eq!(add("//     1;2"), Err(AddError::CannotFindCustomDelimiter));
+        assert_eq!(add("//   1;2"), Err(AddError::CannotFindCustomDelimiter));
     }
 
     #[test]
