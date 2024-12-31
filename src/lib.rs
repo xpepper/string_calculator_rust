@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::num::ParseIntError;
 
 const DEFAULT_SEPARATORS: [char; 2] = [',', '\n'];
@@ -32,12 +33,19 @@ fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
 
 fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
     if has_custom_delimiter(string_of_numbers) {
-        if let Some((custom_delimiter, string_of_numbers)) =
-            find_custom_delimiter(string_of_numbers)
+        if let Some((custom_delimiters, string_of_numbers)) =
+            find_custom_delimiters(string_of_numbers)
         {
-            Ok(string_of_numbers
-                .split(custom_delimiter.join("|").as_str())
-                .collect::<Vec<&str>>())
+            let regexp = Regex::new(
+                custom_delimiters
+                    .into_iter()
+                    .map(regex::escape)
+                    .collect::<Vec<String>>()
+                    .join("|")
+                    .as_str(),
+            )
+            .unwrap();
+            Ok(regexp.split(string_of_numbers).collect::<Vec<&str>>())
         } else {
             Err(AddError::CannotFindCustomDelimiter)
         }
@@ -52,17 +60,26 @@ fn has_custom_delimiter(string_of_numbers: &str) -> bool {
     string_of_numbers.starts_with("//")
 }
 
-fn find_custom_delimiter(string_of_numbers: &str) -> Option<(Vec<&str>, &str)> {
+fn find_custom_delimiters(string_of_numbers: &str) -> Option<(Vec<&str>, &str)> {
     if string_of_numbers.starts_with("//\n") {
         return None;
     }
 
-    string_of_numbers.strip_prefix("//[").and_then(|rest| {
-        let newline_index = rest.find("]\n")?;
-        let delimiter = &rest[..newline_index];
+    string_of_numbers.strip_prefix("//").and_then(|rest| {
+        let newline_index = rest.find("\n")?;
+        let delimiters = &rest[..newline_index];
         let numbers = &rest[newline_index + 1..];
-        Some((vec![delimiter], numbers))
+        Some((extract_delimiters(delimiters), numbers))
     })
+}
+
+fn extract_delimiters(input: &str) -> Vec<&str> {
+    // Define a regex to match content inside square brackets
+    let re = Regex::new(r"\[(.*?)]").unwrap();
+    // Capture all matches and collect them into a vector
+    re.captures_iter(input)
+        .map(|cap| cap.get(1).unwrap().as_str()) // Capture group 1 contains the content inside brackets
+        .collect()
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -138,10 +155,10 @@ mod tests {
         assert_eq!(add("//[***]\n1***2***3"), Ok(1 + 2 + 3));
     }
 
-    #[ignore]
     #[test]
     fn allow_multiple_delimiters() {
         //Allow multiple delimiters like this: “//[delim1][delim2]\n” for example “//[*][%]\n1*2%3”
+        assert_eq!(add("//[;][,]\n1;2,3"), Ok(1 + 2 + 3));
         assert_eq!(add("//[*][%]\n1*2%3"), Ok(1 + 2 + 3));
     }
 
