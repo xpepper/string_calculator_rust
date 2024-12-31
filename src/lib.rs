@@ -6,10 +6,29 @@ pub fn add(string_of_numbers: &str) -> Result<i32, AddError> {
         return Ok(0);
     }
 
+    let numbers = numbers_from(string_of_numbers)?;
+    let negatives = find_negatives_in(&numbers);
+    if !negatives.is_empty() {
+        return Err(AddError::NegativeNumbersNotAllowed(negatives));
+    }
+
+    Ok(numbers.iter().sum())
+}
+
+fn find_negatives_in(numbers: &[i32]) -> Vec<i32> {
+    let negatives = numbers
+        .iter()
+        .filter(|n| n.is_negative())
+        .cloned()
+        .collect::<Vec<i32>>();
+    negatives
+}
+
+fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
     parse(string_of_numbers)?
         .into_iter()
         .map(|n| n.trim().parse::<i32>().map_err(AddError::from))
-        .sum()
+        .collect::<Result<Vec<i32>, AddError>>()
 }
 
 fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
@@ -51,6 +70,7 @@ fn find_custom_delimiter(string_of_numbers: &str) -> Option<(&str, &str)> {
 pub enum AddError {
     CannotParseNumber(String),
     CannotFindCustomDelimiter,
+    NegativeNumbersNotAllowed(Vec<i32>),
 }
 
 impl From<ParseIntError> for AddError {
@@ -94,6 +114,18 @@ mod tests {
         assert_eq!(add("//|\n1|2"), Ok(3));
         assert_eq!(add("//==\n1==2"), Ok(3));
         assert_eq!(add("// \n1 2"), Ok(3));
+    }
+
+    #[test]
+    fn does_not_allow_negative_numbers() {
+        assert_eq!(
+            add("1,-2"),
+            Err(AddError::NegativeNumbersNotAllowed(vec![-2]))
+        );
+        assert_eq!(
+            add("//;\n-1;-2"),
+            Err(AddError::NegativeNumbersNotAllowed(vec![-1, -2]))
+        );
     }
 
     #[test]
