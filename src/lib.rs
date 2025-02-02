@@ -28,7 +28,7 @@ fn numbers_from(string_of_numbers: &str) -> Result<Vec<i32>, AddError> {
     parse(string_of_numbers)?
         .into_iter()
         .map(|number| number.trim().parse::<i32>().map_err(AddError::from))
-        .collect::<Result<Vec<i32>, AddError>>()
+        .collect()
 }
 
 fn parse(string_of_numbers: &str) -> Result<Vec<&str>, AddError> {
